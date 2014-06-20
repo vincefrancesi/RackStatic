@@ -2,13 +2,12 @@ use Rack::Static,
   :urls => ["/images", "/js", "/css"],
   :root => "public"
 
-run lambda { |env|
-  [
-    200,
-    {
-      'Content-Type'  => 'text/html',
-      'Cache-Control' => 'public, max-age=86400'
-    },
-    File.open('public/index.html', File::RDONLY)
-  ]
+run Proc.new { |env|
+
+  if env['REQUEST_PATH'] == '/'
+    #[200, {'Content-Type' => 'text/html'}, File.read(index_file)]
+    Rack::File.new('public/index.html').call(env)
+  else
+    Rack::Directory.new("public").call(env)
+  end
 }
